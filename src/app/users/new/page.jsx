@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FloppyDisk, PersonPlus } from "@gravity-ui/icons";
 import {
   Button,
@@ -22,21 +23,29 @@ const highlights = [
 ];
 
 const NewUserPage = () => {
-  const onSubmit = (event) => {
+  const router = useRouter();
+
+  const onSubmit = async (event) => {
     event.preventDefault();
 
-    const fromData = new FormData(event.target);
-    const newUsers = Object.fromEntries(fromData.entries());
+    const formData = new FormData(event.currentTarget);
+    const newUser = Object.fromEntries(formData.entries());
 
-    console.log("New user data:", newUsers);
+    console.log("New user data:", newUser);
 
-    fetch("http://localhost:8000/users", {
+    const req = await fetch("http://localhost:8000/users", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(newUsers),
+      body: JSON.stringify(newUser),
     });
+
+    const res = await req.json();
+    if (res.success) {
+      alert("User created successfully!");
+      router.push("/users");
+    }
   };
 
   return (
